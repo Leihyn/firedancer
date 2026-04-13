@@ -65,6 +65,7 @@
 #include "fd_avx512_wwv.h" /* Vector ulong support */
 #include "fd_avx512_wwb.h" /* Vector uchar (byte) support */
 #include "fd_avx512_wwh.h" /* Vector ushort support */
+#include "fd_avx512_memcpy.h" /* Non-temporal AVX accelerated memcpy */
 
 #else
 #error "Build target does not support AVX512 wrappers"

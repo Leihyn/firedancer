@@ -25,7 +25,9 @@ ifdef FD_HAS_AVX512
 $(call make-unit-test,test_avx512_16x32,test_avx512_16x32,fd_util)
 $(call make-unit-test,test_avx512_8x64,test_avx512_8x64,fd_util)
 $(call make-unit-test,test_avx512_64x8,test_avx512_64x8,fd_util)
+$(call make-unit-test,test_avx512_memcpy,test_avx512_memcpy,fd_util)
 $(call run-unit-test,test_avx512_16x32)
 $(call run-unit-test,test_avx512_8x64)
 $(call run-unit-test,test_avx512_64x8)
+$(call run-unit-test,test_avx512_memcpy)
 endif
