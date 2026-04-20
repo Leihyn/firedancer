@@ -80,6 +80,7 @@
 #define REPLAY_SIG_OC_ADVANCED    (5)
 #define REPLAY_SIG_TXN_EXECUTED   (6)
 #define REPLAY_SIG_REASM_EVICTED  (7)
+#define REPLAY_SIG_SNAP_CREATE    (8)
 
 /* fd_replay_slot_completed promises that it will deliver at most 2
    frags for a given slot (at most 2 equivocating blocks).  The first
@@ -212,7 +213,9 @@ typedef union fd_replay_message fd_replay_message_t;
 
 /* admin rsp err discriminators, stored in frag_meta.sig */
 #define REPLAY_ADMIN_SUCCESS         0
-#define REPLAY_ADMIN_ERR_UNSUPPORTED 1
+#define REPLAY_ADMIN_ERR_BUSY        1
+#define REPLAY_ADMIN_ERR_UNSUPPORTED 2
+#define REPLAY_ADMIN_ERR_NOT_READY   3
 
 FD_PROTOTYPES_BEGIN
 
