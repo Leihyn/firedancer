@@ -2457,13 +2457,16 @@ fd_bpf_loader_program_execute( fd_exec_instr_ctx_t * ctx ) {
     } else if( FD_UNLIKELY( !memcmp( &fd_solana_bpf_loader_program_id, program_id, sizeof(fd_pubkey_t) ) ) ) {
       FD_EXEC_CU_UPDATE( ctx, DEFAULT_LOADER_COMPUTE_UNITS );
       fd_log_collector_msg_literal( ctx, "BPF loader management instructions are no longer supported" );
+      FD_LOG_NOTICE(("HIT THIS CASE"));
       return FD_EXECUTOR_INSTR_ERR_UNSUPPORTED_PROGRAM_ID;
     } else if( FD_UNLIKELY( !memcmp( &fd_solana_bpf_loader_deprecated_program_id, program_id, sizeof(fd_pubkey_t) ) ) ) {
       FD_EXEC_CU_UPDATE( ctx, DEPRECATED_LOADER_COMPUTE_UNITS );
       fd_log_collector_msg_literal( ctx, "Deprecated loader is no longer supported" );
+      FD_LOG_NOTICE(("HIT THIS CASE"));
       return FD_EXECUTOR_INSTR_ERR_UNSUPPORTED_PROGRAM_ID;
     } else {
       fd_log_collector_msg_literal( ctx, "Invalid BPF loader id" );
+      FD_LOG_NOTICE(("HIT THIS CASE"));
       return FD_EXECUTOR_INSTR_ERR_UNSUPPORTED_PROGRAM_ID;
     }
   }
@@ -2500,6 +2503,7 @@ fd_bpf_loader_program_execute( fd_exec_instr_ctx_t * ctx ) {
     err = fd_bpf_loader_program_get_state( program_account.entry, program_account_state );
     if( FD_UNLIKELY( err!=FD_EXECUTOR_INSTR_SUCCESS ) ) {
       fd_log_collector_msg_literal( ctx, "Program is not deployed" );
+      FD_LOG_NOTICE(("HIT THIS CASE"));
       return FD_EXECUTOR_INSTR_ERR_UNSUPPORTED_PROGRAM_ID;
     }
 
@@ -2515,6 +2519,7 @@ fd_bpf_loader_program_execute( fd_exec_instr_ctx_t * ctx ) {
       if( !fd_is_non_migrating_builtin_program( program_id ) ) {
         fd_log_collector_msg_literal( ctx, "Program is not deployed" );
       }
+      FD_LOG_NOTICE(("HIT THIS CASE"));
       return FD_EXECUTOR_INSTR_ERR_UNSUPPORTED_PROGRAM_ID;
     }
 
@@ -2522,11 +2527,15 @@ fd_bpf_loader_program_execute( fd_exec_instr_ctx_t * ctx ) {
     progdata_ro = fd_runtime_get_executable_account( ctx->runtime, ctx->txn_out, programdata_pubkey );
     if( FD_UNLIKELY( !progdata_ro ) ) {
       fd_log_collector_msg_literal( ctx, "Program is not deployed" );
+      FD_BASE58_ENCODE_32_BYTES( programdata_pubkey->uc, progdata_ro_b58 );
+      FD_BASE58_ENCODE_32_BYTES( program_id->uc, program_id_b58 );
+      FD_LOG_NOTICE(("HIT THIS CASE PDA %s PROGRAM %s", progdata_ro_b58, program_id_b58));
       return FD_EXECUTOR_INSTR_ERR_UNSUPPORTED_PROGRAM_ID;
     }
 
     if( FD_UNLIKELY( progdata_ro->data_len<PROGRAMDATA_METADATA_SIZE ) ) {
       fd_log_collector_msg_literal( ctx, "Program is not deployed" );
+      FD_LOG_NOTICE(("HIT THIS CASE"));
       return FD_EXECUTOR_INSTR_ERR_UNSUPPORTED_PROGRAM_ID;
     }
 
@@ -2534,6 +2543,8 @@ fd_bpf_loader_program_execute( fd_exec_instr_ctx_t * ctx ) {
     err = fd_bpf_loader_program_get_state( progdata_ro, program_data_account_state );
     if( FD_UNLIKELY( err!=FD_EXECUTOR_INSTR_SUCCESS ) ) {
       fd_log_collector_msg_literal( ctx, "Program is not deployed" );
+      FD_BASE58_ENCODE_32_BYTES( programdata_pubkey->uc, progdata_ro_b58 );
+      FD_LOG_NOTICE(("HIT THIS CASE %s", progdata_ro_b58));
       return FD_EXECUTOR_INSTR_ERR_UNSUPPORTED_PROGRAM_ID;
     }
 
@@ -2542,6 +2553,9 @@ fd_bpf_loader_program_execute( fd_exec_instr_ctx_t * ctx ) {
     if( FD_UNLIKELY( !fd_bpf_upgradeable_loader_state_is_program_data( program_data_account_state ) ) ) {
       /* The account is closed. */
       fd_log_collector_msg_literal( ctx, "Program is not deployed" );
+      FD_BASE58_ENCODE_32_BYTES( programdata_pubkey->uc, progdata_ro_b58 );
+      FD_BASE58_ENCODE_32_BYTES( program_id->uc, program_id_b58 );
+      FD_LOG_NOTICE(("HIT THIS CASE %s %s", progdata_ro_b58, program_id_b58));
       return FD_EXECUTOR_INSTR_ERR_UNSUPPORTED_PROGRAM_ID;
     }
 
@@ -2550,6 +2564,7 @@ fd_bpf_loader_program_execute( fd_exec_instr_ctx_t * ctx ) {
       /* The account was likely just deployed or upgraded. Corresponds to
          'LoadedProgramType::DelayVisibility' */
       fd_log_collector_msg_literal( ctx, "Program is not deployed" );
+      FD_LOG_NOTICE(("HIT THIS CASE"));
       return FD_EXECUTOR_INSTR_ERR_UNSUPPORTED_PROGRAM_ID;
     }
   }
@@ -2561,6 +2576,7 @@ fd_bpf_loader_program_execute( fd_exec_instr_ctx_t * ctx ) {
       fd_progcache_pull( progcache, &xid, program_id, load_env, progdata_ro, fd_type_pun_const( program_account.entry->owner ) );
   if( FD_UNLIKELY( !cache_entry ) ) {
     fd_log_collector_msg_literal( ctx, "Program is not cached" );
+    FD_LOG_NOTICE(("HIT THIS CASE"));
     return FD_EXECUTOR_INSTR_ERR_UNSUPPORTED_PROGRAM_ID;
   }
 
@@ -2568,6 +2584,7 @@ fd_bpf_loader_program_execute( fd_exec_instr_ctx_t * ctx ) {
   if( FD_UNLIKELY( !cache_entry->data_gaddr ) ) {
     fd_progcache_rec_close( progcache, cache_entry );
     fd_log_collector_msg_literal( ctx, "Program is not deployed" );
+    FD_LOG_NOTICE(("HIT THIS CASE"));
     return FD_EXECUTOR_INSTR_ERR_UNSUPPORTED_PROGRAM_ID;
   }
 
