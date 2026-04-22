@@ -33,7 +33,7 @@ create_account_raw( fd_accdb_t *        accdb,
                     uint                dlen,
                     uchar *             data,
                     fd_pubkey_t const * owner ) {
-  fd_accdb_entry_t entry = fd_accdb_write_one( accdb, fork_id, pubkey->key, 1, 1 );
+  fd_accdb_entry_t entry = fd_accdb_write_one( accdb, fork_id, pubkey->key );
   if( data && dlen ) fd_memcpy( entry.data, data, dlen );
   entry.data_len   = dlen;
   entry.lamports   = lamports;
@@ -83,7 +83,7 @@ create_loader_v4_program( test_env_t *        env,
                           ulong               program_size ) {
   ulong dlen = LOADER_V4_PROGRAM_DATA_OFFSET + program_size;
 
-  fd_accdb_entry_t entry = fd_accdb_write_one( env->mini->runtime->accdb, env->fork_id, pubkey->key, 1, 1 );
+  fd_accdb_entry_t entry = fd_accdb_write_one( env->mini->runtime->accdb, env->fork_id, pubkey->key );
   fd_memset( entry.data, 0, dlen );
   FD_STORE( ulong, entry.data, 0UL );
   fd_memcpy( entry.data + 8, authority->uc, 32 );
