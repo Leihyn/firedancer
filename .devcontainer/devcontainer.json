@@ -14,19 +14,9 @@
     }
   },
 
-  "onCreateCommand": {
-    "update-apt": "sudo apt-get update",
-    "install-deps": [
-      "sudo", "apt-get", "install", "-y",
-      "curl", "diffutils", "build-essential", "pkgconf",
-      "zstd", "gzip", "cmake", "clang", "clangd",
-      "libclang-dev", "libudev-dev", "protobuf-compiler",
-      "autoconf", "automake", "autopoint", "bison", "flex",
-      "gcc-multilib", "gettext", "llvm", "lcov",
-      "libgmp-dev", "perl", "git"
-    ],
-    "setup-submodules": "git submodule update --init --recursive"
-  },
+  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y curl diffutils build-essential pkgconf zstd gzip cmake  
+  clang clangd libclang-dev libudev-dev protobuf-compiler autoconf automake autopoint bison flex gcc-multilib gettext llvm 
+  lcov libgmp-dev perl git patch bc xxd && git submodule update --init --recursive",
 
   "postCreateCommand": "./deps.sh +dev",
 
