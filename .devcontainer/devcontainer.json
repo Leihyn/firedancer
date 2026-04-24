@@ -13,7 +13,7 @@
     }
   },
   "onCreateCommand": "sudo apt-get update && sudo apt-get install -y curl diffutils build-essential pkgconf zstd gzip cmake clang clangd libclang-dev libudev-dev protobuf-compiler autoconf automake autopoint bison flex gcc-multilib gettext llvm lcov libgmp-dev perl git patch bc xxd && git submodule update --init --recursive",
-  "postCreateCommand": "./deps.sh +dev",
+  "postCreateCommand": "bash scripts/hunt-build.sh 2>&1 | tee /tmp/hunt-build-stream.log; echo 'postCreate done. Full log: /tmp/hunt-build.log'",
   "customizations": {
     "vscode": {
       "extensions": [
