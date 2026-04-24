@@ -1,7 +1,6 @@
 {
   "name": "Firedancer Development",
   "image": "mcr.microsoft.com/devcontainers/base:ubuntu-22.04",
-  
   "features": {
     "ghcr.io/devcontainers/features/common-utils:2": {
       "installZsh": true,
@@ -13,13 +12,8 @@
       "version": "latest"
     }
   },
-
-  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y curl diffutils build-essential pkgconf zstd gzip cmake  
-  clang clangd libclang-dev libudev-dev protobuf-compiler autoconf automake autopoint bison flex gcc-multilib gettext llvm   
-  lcov libgmp-dev perl git patch bc xxd && git submodule update --init --recursive",
-
+  "onCreateCommand": "sudo apt-get update && sudo apt-get install -y curl diffutils build-essential pkgconf zstd gzip cmake clang clangd libclang-dev libudev-dev protobuf-compiler autoconf automake autopoint bison flex gcc-multilib gettext llvm lcov libgmp-dev perl git patch bc xxd && git submodule update --init --recursive",
   "postCreateCommand": "./deps.sh +dev",
-
   "customizations": {
     "vscode": {
       "extensions": [
@@ -40,9 +34,7 @@
       }
     }
   },
-
   "remoteUser": "vscode",
-  
   "mounts": [
     "source=${localWorkspaceFolder}/.git,target=${containerWorkspaceFolder}/.git,type=bind,consistency=cached"
   ]
