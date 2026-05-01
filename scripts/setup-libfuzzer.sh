@@ -59,14 +59,33 @@ echo "--- Stage 2: rebuild libfd_exec_sol_compat.so with sancov ---"
 # CFLAGS via the EXTRA_CPPFLAGS env that its build accepts.
 cd $FD_DIR
 SANCOV_CFLAGS='-fsanitize-coverage=inline-8bit-counters,trace-cmp,pc-table -g'
-# Backup the existing un-instrumented one in case we need to fall back
+# These flags are clang-only — GCC's -fsanitize-coverage doesn't accept
+# inline-8bit-counters / pc-table. So we force the build to use clang.
+# Firedancer's machine system uses MACHINE=native_clang_x86_64 to pick a
+# clang-based compile profile; if that's missing we fall back to setting
+# CC=clang directly on the make line.
+# Backup existing un-instrumented .so
 cp -f build/native/gcc/lib/libfd_exec_sol_compat.so build/native/gcc/lib/libfd_exec_sol_compat.so.bak 2>/dev/null || true
-# Force rebuild with sancov flags
+# Wipe stale GCC-built objects so make rebuilds with clang and the sancov flags
+rm -rf build/native/gcc/obj 2>/dev/null || true
+# Run with CC/CXX=clang, output dir under build/native/clang
+echo "  using clang for sancov-instrumented rebuild"
+CC=clang CXX=clang++ \
 EXTRA_CPPFLAGS="$SANCOV_CFLAGS" \
 EXTRA_CFLAGS="$SANCOV_CFLAGS" \
 EXTRA_LDFLAGS="$SANCOV_CFLAGS" \
-make -j2 libfd_exec_sol_compat.so 2>&1 | tail -30
-INSTRUMENTED_FD=$FD_DIR/build/native/gcc/lib/libfd_exec_sol_compat.so
+MACHINE=linux_clang_x86_64 \
+make -j2 libfd_exec_sol_compat.so 2>&1 | tail -50
+INSTRUMENTED_FD=""
+for cand in \
+  $FD_DIR/build/native/clang/lib/libfd_exec_sol_compat.so \
+  $FD_DIR/build/linux/clang/x86_64/lib/libfd_exec_sol_compat.so \
+  $FD_DIR/build/native/gcc/lib/libfd_exec_sol_compat.so; do
+  if [ -f "$cand" ]; then
+    INSTRUMENTED_FD="$cand"
+    break
+  fi
+done
 if [ ! -f "$INSTRUMENTED_FD" ]; then
   echo "ERROR: rebuild failed"
   exit 1
