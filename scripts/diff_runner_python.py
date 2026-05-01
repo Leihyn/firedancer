@@ -57,6 +57,7 @@ CHILD_RUNNER_SRC = r"""
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <errno.h>
 
 typedef int (*fn_t)(void *, unsigned long *, void const *, unsigned long);
 typedef void (*init_t)(int);
