@@ -186,7 +186,8 @@ def ensure_child_runner(workdir: Path) -> Path:
     if not bin_path.exists() or src.stat().st_mtime > bin_path.stat().st_mtime:
         src.write_text(CHILD_RUNNER_SRC)
         rc = subprocess.run(
-            ["gcc", "-O2", "-Wall", str(src), "-ldl", "-o", str(bin_path)],
+            ["clang", "-O2", "-Wall", "-fsanitize=fuzzer-no-link",
+             str(src), "-ldl", "-o", str(bin_path)],
             check=False, capture_output=True, text=True,
         )
         if rc.returncode != 0:
