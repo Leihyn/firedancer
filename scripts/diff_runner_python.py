@@ -66,9 +66,8 @@ static unsigned char fd_out[16UL * 1024UL * 1024UL];
 static unsigned char ag_out[16UL * 1024UL * 1024UL];
 
 int main(int argc, char **argv) {
-    if (argc != 4) {
-        fprintf(stderr, "usage: %s <harness> <input-file> <fd_lib> <ag_lib>\n", argv[0]);
-        fprintf(stderr, "(actually expects: harness in_file)\n");
+    if (argc < 3) {
+        fprintf(stderr, "usage: %s <harness> <input-file> [fd_lib] [ag_lib]\n", argv[0]);
         return 1;
     }
     char const *harness = argv[1];
@@ -82,13 +81,48 @@ int main(int argc, char **argv) {
     FILE *f = fopen(input_path, "rb");
     if (!f) { fprintf(stderr, "open input: %s\n", strerror(errno)); return 2; }
     fseek(f, 0, SEEK_END);
-    long sz = ftell(f);
+    long file_sz = ftell(f);
     fseek(f, 0, SEEK_SET);
-    unsigned char *buf = malloc(sz > 0 ? sz : 1);
-    if (sz > 0 && fread(buf, 1, sz, f) != (size_t)sz) {
+    unsigned char *file_buf = malloc(file_sz > 0 ? file_sz : 1);
+    if (file_sz > 0 && fread(file_buf, 1, file_sz, f) != (size_t)file_sz) {
         fprintf(stderr, "read input failed\n"); return 3;
     }
     fclose(f);
+
+    /* Unwrap FixtureContainer if present.
+     *
+     * test-vectors fixtures are wrapped: field 1 (tag=0x0a) = metadata,
+     * field 2 (tag=0x12) = the actual harness input. Find tag 0x12 and
+     * use its inner bytes.
+     *
+     * If we don't see a container, treat raw input as the payload. */
+    unsigned char *buf = file_buf;
+    long sz = file_sz;
+    {
+        long off = 0;
+        int found_inner = 0;
+        while (off < file_sz) {
+            unsigned char tag = file_buf[off++];
+            /* Decode varint length */
+            unsigned long len = 0;
+            unsigned shift = 0;
+            while (off < file_sz && shift < 64) {
+                unsigned char b = file_buf[off++];
+                len |= ((unsigned long)(b & 0x7F)) << shift;
+                if ((b & 0x80) == 0) break;
+                shift += 7;
+            }
+            if (off + (long)len > file_sz) break;
+            if (tag == 0x12) {  /* field 2, wire type 2 (length-delimited) */
+                buf = file_buf + off;
+                sz = (long)len;
+                found_inner = 1;
+                break;
+            }
+            off += (long)len;
+        }
+        (void)found_inner;
+    }
 
     /* dlopen both libs */
     void *fd_h = dlopen(fd_path, RTLD_NOW);
